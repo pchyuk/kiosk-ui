@@ -1,19 +1,21 @@
-// src/App.jsx
+// kiosk-ui/src/App.jsx
 
 import React, { useState } from 'react';
 import { ThemeProvider, createTheme, CssBaseline, Container, Box } from '@mui/material';
+import api from './api/axios'; // 방금 만든 axios 인스턴스를 가져옵니다.
 
+// ... 다른 screen 컴포넌트 import는 이전과 동일 ...
 import WelcomeScreen from './screens/WelcomeScreen.jsx';
 import SelectSideScreen from './screens/SelectSideScreen.jsx';
 import EnterNameScreen from './screens/EnterNameScreen.jsx';
 import EnterAmountScreen from './screens/EnterAmountScreen.jsx';
 import SelectPaymentScreen from './screens/SelectPaymentScreen.jsx';
 import ProcessingScreen from './screens/ProcessingScreen.jsx';
-import MealTicketScreen from './screens/MealTicketScreen.jsx'; // 다시 추가
+import MealTicketScreen from './screens/MealTicketScreen.jsx';
 import CompletionScreen from './screens/CompletionScreen.jsx';
 
 const weddingTheme = createTheme({
-  palette: {
+    palette: {
     primary: { main: '#6D8A96' },
     secondary: { main: '#D4B2A7' },
     background: { default: '#F9F6F2' },
@@ -26,15 +28,14 @@ const weddingTheme = createTheme({
 
 function App() {
   const [step, setStep] = useState('welcome');
-  // guestInfo에 ticketCount를 다시 추가합니다.
   const [guestInfo, setGuestInfo] = useState({
     side: '', name: '', amount: 0, paymentMethod: '', ticketCount: 1,
   });
 
   const updateGuestInfo = (data) => setGuestInfo((prev) => ({ ...prev, ...data }));
 
-  // 화면 전환 로직을 최종 수정합니다.
-  const nextStep = (data) => {
+  // API 요청은 비동기로 처리되므로, 함수에 async를 붙여줍니다.
+  const nextStep = async (data) => {
     switch (step) {
       case 'welcome': setStep('selectSide'); break;
       case 'selectSide': setStep('enterName'); break;
@@ -43,12 +44,28 @@ function App() {
       case 'selectPayment': setStep('processing'); break;
       case 'processing': setStep('mealTicket'); break;
       case 'mealTicket':
-        // MealTicketScreen에서 받은 식권 개수(data)를 저장하고 completion으로 이동
-        updateGuestInfo({ ticketCount: data });
-        setStep('completion'); 
+        // ===== 여기가 핵심! 백엔드로 데이터를 전송합니다. =====
+        try {
+          // 식권 개수를 먼저 guestInfo에 저장합니다.
+          const finalGuestInfo = { ...guestInfo, ticketCount: data };
+          updateGuestInfo({ ticketCount: data });
+          
+          console.log('백엔드로 전송할 데이터:', finalGuestInfo);
+          
+          // '/guests' 경로로 POST 요청을 보냅니다.
+          await api.post('/guests', finalGuestInfo);
+
+          // 성공적으로 전송되면 다음 단계로 넘어갑니다.
+          setStep('completion');
+
+        } catch (error) {
+          console.error('데이터 전송에 실패했습니다:', error);
+          alert('데이터 저장에 실패했습니다. 다시 시도해주세요.');
+          setStep('welcome'); // 오류 발생 시 첫 화면으로
+        }
         break;
-      case 'completion': 
-        // Completion 화면에서 터치하면 첫 화면으로 돌아갑니다.
+      // =======================================================
+      case 'completion':
         setGuestInfo({ side: '', name: '', amount: 0, paymentMethod: '', ticketCount: 1 });
         setStep('welcome');
         break;
@@ -57,6 +74,7 @@ function App() {
   };
 
   const renderStep = () => {
+    // ... renderStep 함수 내용은 이전과 동일 ...
     switch (step) {
       case 'welcome':
         return <WelcomeScreen onStart={nextStep} />;
@@ -71,10 +89,8 @@ function App() {
       case 'processing':
         return <ProcessingScreen paymentMethod={guestInfo.paymentMethod} onConfirm={nextStep} />;
       case 'mealTicket':
-        // onConfirm에 nextStep을 전달하여, 확정 시 받은 데이터를 다음 단계로 넘깁니다.
         return <MealTicketScreen onConfirm={nextStep} />;
       case 'completion':
-        // onConfirm으로 상태를 초기화하고 첫 화면으로 돌아가는 nextStep을 전달합니다.
         return <CompletionScreen guestInfo={guestInfo} onConfirm={nextStep} />;
       default:
         return <WelcomeScreen onStart={nextStep} />;
@@ -82,8 +98,8 @@ function App() {
   };
 
   return (
+    // ... return 안의 JSX 내용은 이전과 동일 ...
     <ThemeProvider theme={weddingTheme}>
-      <CssBaseline />
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100vw', minHeight: '100vh', py: { xs: 2, sm: 0 } }}>
         <Container maxWidth="sm">
             <Box sx={{ p: { xs: 2, sm: 4 }, bgcolor: 'white', borderRadius: 4, boxShadow: 3 }}>
