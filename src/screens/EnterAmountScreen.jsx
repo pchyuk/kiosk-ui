@@ -19,34 +19,49 @@ const EnterAmountScreen = ({ onConfirm }) => {
 
   return (
     <Box textAlign="center">
-      {/* 화면 크기에 따라 제목의 글자 크기도 조절합니다. */}
       <Typography variant="h5" sx={{ mb: 3, fontSize: { xs: '1.5rem', sm: '1.75rem' } }}>
         전달하실 축의금을 선택해주세요
       </Typography>
 
-      {/* ===== 여기가 핵심! 반응형 Grid 설정 ===== */}
-      <Grid container spacing={2} justifyContent="center">
-        {amounts.map((amount) => (
-          // 화면이 작을 땐(xs) 한 줄에 2개(50%), 조금 커지면(sm) 한 줄에 4개(25%)씩 보이도록 설정
-          <Grid item xs={6} sm={3} key={amount}>
-            <Button
-              variant="outlined"
-              fullWidth
-              sx={{ py: 1.5 }}
-              onClick={() => setCustomAmount(amount)}
+      {/* ===== Grid 컨테이너의 너비를 100%로 명확히 설정 ===== */}
+      <Box sx={{ width: '100%', mb: 2 }}>
+        <Grid container spacing={2} justifyContent="center">
+          {amounts.map((amount) => (
+            // ===== 여기가 핵심! Grid 아이템의 너비를 직접 제어 =====
+            // flexBasis를 이용해 너비를 직접 계산하여 할당합니다.
+            // spacing={2}는 16px이므로, 50% 너비에서 8px을 빼서 간격을 보정합니다.
+            <Grid 
+              item 
+              key={amount}
+              sx={{
+                flexBasis: {
+                  xs: 'calc(50% - 8px)', // 작은 화면: 2개씩
+                  sm: 'calc(25% - 12px)' // 큰 화면: 4개씩
+                },
+                maxWidth: {
+                  xs: 'calc(50% - 8px)',
+                  sm: 'calc(25% - 12px)'
+                }
+              }}
             >
-              {amount.toLocaleString()}원
-            </Button>
-          </Grid>
-        ))}
-      </Grid>
+              <Button
+                variant="outlined"
+                fullWidth
+                sx={{ py: 1.5, whiteSpace: 'nowrap' }} // whiteSpace: 'nowrap' 추가
+                onClick={() => setCustomAmount(amount)}
+              >
+                {amount.toLocaleString()}원
+              </Button>
+            </Grid>
+          ))}
+        </Grid>
+      </Box>
 
+      {/* '기타 금액' 입력 부분은 이전과 동일합니다. */}
       <Box display="flex" alignItems="center" my={3}>
         <IconButton onClick={decreaseAmount} color="primary" aria-label="금액 감소">
-          {/* 화면 크기에 따라 아이콘 크기도 조절합니다. */}
           <RemoveCircleOutlineIcon sx={{ fontSize: { xs: '2rem', sm: '2.5rem' } }} />
         </IconButton>
-
         <TextField
           label="선택한 금액"
           type="number"
@@ -62,11 +77,10 @@ const EnterAmountScreen = ({ onConfirm }) => {
             '& input[type=number]': {
               MozAppearance: 'textfield',
               textAlign: 'center',
-              fontSize: { xs: '1.2rem', sm: '1.5rem' }, // 입력창 글자 크기도 반응형으로
+              fontSize: { xs: '1.2rem', sm: '1.5rem' },
             },
           }}
         />
-
         <IconButton onClick={increaseAmount} color="primary" aria-label="금액 증가">
           <AddCircleOutlineIcon sx={{ fontSize: { xs: '2rem', sm: '2.5rem' } }} />
         </IconButton>
