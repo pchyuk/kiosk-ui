@@ -68,11 +68,9 @@ function App() {
     }
   };
 
-  // ******** 바로 이 부분의 구조가 변경되었습니다! ********
   return (
     <ThemeProvider theme={weddingTheme}>
       <CssBaseline />
-      {/* 1. 이 Box가 전체 화면을 차지하며 Flex를 이용해 자식 요소를 정중앙에 배치합니다. */}
       <Box
         sx={{
           display: 'flex',
@@ -80,13 +78,12 @@ function App() {
           justifyContent: 'center',
           width: '100vw',
           height: '100vh',
-          bgcolor: 'background.default', // 배경색을 이 최상위 Box에서 설정
+          bgcolor: 'background.default',
         }}
       >
-        {/* 2. Container는 최대 너비를 제한하는 역할만 합니다. */}
         <Container maxWidth="sm">
-            {/* 3. 실제 흰색 카드 UI 부분 */}
-            <Box sx={{ p: 3, bgcolor: 'white', borderRadius: 4, boxShadow: 3 }}>
+            {/* 흰색 카드의 안쪽 여백(padding)을 화면 크기에 따라 조절합니다. */}
+            <Box sx={{ p: { xs: 2, sm: 4 }, bgcolor: 'white', borderRadius: 4, boxShadow: 3 }}>
                 {renderStep()}
             </Box>
         </Container>
