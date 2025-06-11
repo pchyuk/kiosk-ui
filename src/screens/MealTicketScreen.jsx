@@ -1,13 +1,12 @@
 // src/screens/MealTicketScreen.jsx
+
 import React, { useState } from 'react';
 import { Typography, Button, Box, IconButton, Alert } from '@mui/material';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import RemoveCircleOutlineIcon from '@mui/icons-material/RemoveCircleOutline';
 
-// 사용자 흐름 5: 식권 발급 
 const MealTicketScreen = ({ onConfirm }) => {
   const [count, setCount] = useState(1);
-  // 주요 기능: 2장 초과 시 안내 
   const showWarning = count > 2;
 
   return (
@@ -28,9 +27,10 @@ const MealTicketScreen = ({ onConfirm }) => {
         </Alert>
       )}
       <Button variant="contained" size="large" onClick={() => onConfirm(count)}>
-        발급하기
+        식권 개수 확정
       </Button>
     </Box>
   );
 };
+
 export default MealTicketScreen;
