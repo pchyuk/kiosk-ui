@@ -1,10 +1,7 @@
-// kiosk-ui/src/App.jsx
-
 import React, { useState } from 'react';
 import { ThemeProvider, createTheme, CssBaseline, Container, Box } from '@mui/material';
-import api from './api/axios'; // 방금 만든 axios 인스턴스를 가져옵니다.
+import api from './api/axios';
 
-// ... 다른 screen 컴포넌트 import는 이전과 동일 ...
 import WelcomeScreen from './screens/WelcomeScreen.jsx';
 import SelectSideScreen from './screens/SelectSideScreen.jsx';
 import EnterNameScreen from './screens/EnterNameScreen.jsx';
@@ -14,15 +11,17 @@ import ProcessingScreen from './screens/ProcessingScreen.jsx';
 import MealTicketScreen from './screens/MealTicketScreen.jsx';
 import CompletionScreen from './screens/CompletionScreen.jsx';
 
+// 원래의 테마 설정
 const weddingTheme = createTheme({
-    palette: {
+  palette: {
     primary: { main: '#6D8A96' },
     secondary: { main: '#D4B2A7' },
     background: { default: '#F9F6F2' },
   },
   typography: {
     fontFamily: '"Helvetica", "Arial", sans-serif',
-    h4: { fontWeight: 600 }, h5: { fontWeight: 600 },
+    h4: { fontWeight: 600 },
+    h5: { fontWeight: 600 },
   },
 });
 
@@ -34,7 +33,6 @@ function App() {
 
   const updateGuestInfo = (data) => setGuestInfo((prev) => ({ ...prev, ...data }));
 
-  // API 요청은 비동기로 처리되므로, 함수에 async를 붙여줍니다.
   const nextStep = async (data) => {
     switch (step) {
       case 'welcome': setStep('selectSide'); break;
@@ -44,27 +42,17 @@ function App() {
       case 'selectPayment': setStep('processing'); break;
       case 'processing': setStep('mealTicket'); break;
       case 'mealTicket':
-        // ===== 여기가 핵심! 백엔드로 데이터를 전송합니다. =====
         try {
-          // 식권 개수를 먼저 guestInfo에 저장합니다.
           const finalGuestInfo = { ...guestInfo, ticketCount: data };
           updateGuestInfo({ ticketCount: data });
-          
-          console.log('백엔드로 전송할 데이터:', finalGuestInfo);
-          
-          // '/guests' 경로로 POST 요청을 보냅니다.
           await api.post('/guests', finalGuestInfo);
-
-          // 성공적으로 전송되면 다음 단계로 넘어갑니다.
           setStep('completion');
-
         } catch (error) {
           console.error('데이터 전송에 실패했습니다:', error);
           alert('데이터 저장에 실패했습니다. 다시 시도해주세요.');
-          setStep('welcome'); // 오류 발생 시 첫 화면으로
+          setStep('welcome');
         }
         break;
-      // =======================================================
       case 'completion':
         setGuestInfo({ side: '', name: '', amount: 0, paymentMethod: '', ticketCount: 1 });
         setStep('welcome');
@@ -74,7 +62,6 @@ function App() {
   };
 
   const renderStep = () => {
-    // ... renderStep 함수 내용은 이전과 동일 ...
     switch (step) {
       case 'welcome':
         return <WelcomeScreen onStart={nextStep} />;
@@ -98,8 +85,8 @@ function App() {
   };
 
   return (
-    // ... return 안의 JSX 내용은 이전과 동일 ...
     <ThemeProvider theme={weddingTheme}>
+      <CssBaseline />
       <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100vw', minHeight: '100vh', py: { xs: 2, sm: 0 } }}>
         <Container maxWidth="sm">
             <Box sx={{ p: { xs: 2, sm: 4 }, bgcolor: 'white', borderRadius: 4, boxShadow: 3 }}>
